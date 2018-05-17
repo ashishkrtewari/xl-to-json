@@ -63,6 +63,10 @@ app.post('/upload', function (req, res) {
 app.get('/', function (req, res) {
     res.sendFile(__dirname + "/index.html");
 });
-app.listen('8080', function () {
-    console.log('running on 8080...');
+// set the port of our application
+// process.env.PORT lets the port be set by Heroku
+var port = process.env.PORT || 8080;
+
+app.listen(port, function () {
+    console.log('running on ' + port + '...');
 });
