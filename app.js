@@ -5,9 +5,11 @@ var multer = require('multer');
 var xlstojson = require("xls-to-json-lc");
 var xlsxtojson = require("./xlsx-to-json-lc");
 app.use(bodyParser.json());
+var dirName = process.env.OPENSHIFT_DATA_DIR;
+console.log(dirName);
 var storage = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
-        cb(null, './uploads/')
+        cb(null, dirName + '/xls/uploads/')
     },
     filename: function (req, file, cb) {
         var datetimestamp = Date.now();
