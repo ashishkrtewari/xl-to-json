@@ -66,7 +66,7 @@ CV.prototype.cvjson = function (csv, output, lowerCaseHeaders, callback) {
       for (var tileIndex = 0; tileIndex < tiles.length; tileIndex++) {
         var currentTile = tiles[tileIndex], 
               nextTile = tiles[tileIndex + 1] || rows.length,
-              currentTileValue = rows[currentTile][0].toLowerCase().substr(6);
+              currentTileValue = rows[currentTile][1].toLowerCase();
               record[currentTileValue] = {};
         var breakObj = (function () {
           var obj = {};
@@ -88,7 +88,7 @@ CV.prototype.cvjson = function (csv, output, lowerCaseHeaders, callback) {
         for (var breakIndex = breakObj.min; breakIndex <= breakObj.max; breakIndex++) {
           var currentBreak = breaks[breakIndex],
               nextBreak = breaks[breakIndex + 1] < nextTile ? breaks[breakIndex + 1] : nextTile,
-              breakValue = rows[currentBreak][0].substr(7),
+              breakValue = rows[currentBreak][1].toLowerCase(),
               keys = [];
 
           if (breakValue !== 'transdata') {
@@ -117,10 +117,9 @@ CV.prototype.cvjson = function (csv, output, lowerCaseHeaders, callback) {
               record[currentTileValue][breakValue] = {};
               for (var i = currentBreak + 2; i < nextBreak; i++) {
                 var header = rows[currentBreak + 1].slice(1);
-                var row = rows[i];
+                var row = rows[i].slice(1);
                 var copyId = row[0].toLowerCase();
-                var foundCounter = 0;
-                
+                var foundCounter = 0;                
 
                 for (var j = 0; j < keys.length; j++) {
                   if (keys[j].indexOf(copyId) > -1) {
@@ -140,6 +139,23 @@ CV.prototype.cvjson = function (csv, output, lowerCaseHeaders, callback) {
             })();
           }
         }
+      }
+
+      // record = JSON.stringify(record);
+      record = replacePunctuations(JSON.stringify(record));
+
+      function replacePunctuations(old){
+        var fresh = old;
+        console.log(typeof fresh);
+        var puncSet = [["’","&rsquo;"],["'","&apos;"],["®","<sup>®</sup>"],["™","<sup>™</sup>"],["“","&ldquo;"],["”","&rdquo;"],["„","&bdquo;"]];
+        for(var item in puncSet){
+          // while(fresh.indexOf(puncSet[item[0]]) > -1){
+            // console.log(puncSet[item]);
+            var term = '/' + puncSet[item][0] + '/g';
+            fresh = fresh.replace(eval(term),puncSet[item][1]);
+          // }
+        }
+        return JSON.parse(fresh);
       }
       // when writing to a file, use the 'close' event
       // the 'end' event may fire before the file has been written
